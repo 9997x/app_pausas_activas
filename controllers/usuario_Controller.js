@@ -75,3 +75,48 @@ exports.obtenerUsuarioPorId = async (req, res) => {
     });
   }
 };
+
+// @desc    3. Buscar un usuario por correo institucional (acceso de DEMO: sin contraseña ni token)
+// @route   GET /api/usuarios/buscar?correo=nombre@uniautonoma.edu.co
+exports.buscarUsuarioPorCorreo = async (req, res) => {
+  try {
+    const { correo } = req.query;
+
+    if (typeof correo !== 'string' || !correo.trim()) {
+      return res.status(400).json({
+        mensaje: 'Error de validación: el parámetro "correo" es obligatorio.'
+      });
+    }
+
+    const correoLimpio = correo.trim();
+
+    // Misma regla de negocio que en el registro (HU-01)
+    const regexDominio = /^[a-zA-Z0-9._%+-]+@uniautonoma\.edu\.co$/;
+    if (!regexDominio.test(correoLimpio)) {
+      return res.status(400).json({
+        mensaje: 'Error de validación: El correo debe pertenecer al dominio @uniautonoma.edu.co'
+      });
+    }
+
+    // Comparación sin distinguir mayúsculas/minúsculas
+    const usuario = await Usuario.findOne({ correo: correoLimpio })
+      .collation({ locale: 'en', strength: 2 });
+
+    if (!usuario) {
+      return res.status(404).json({
+        mensaje: 'No existe un usuario registrado con ese correo.'
+      });
+    }
+
+    res.status(200).json({
+      exito: true,
+      datos: usuario
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      mensaje: 'Error al buscar el usuario por correo',
+      error: error.message
+    });
+  }
+};
