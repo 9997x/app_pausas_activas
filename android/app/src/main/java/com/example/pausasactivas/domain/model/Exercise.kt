@@ -12,7 +12,9 @@ data class Exercise(
     val nombre: String,
     val resumen: String,
     val instrucciones: List<String>,
-    val regla: String
+    val regla: String,
+    /** Zona del cuerpo que trabaja (se usa en el filtro del historial). */
+    val zona: String = ""
 )
 
 object ExerciseCatalog {
@@ -31,7 +33,8 @@ object ExerciseCatalog {
                 "Vuelve al centro y repite hacia el otro lado."
             ),
             regla = "Se mide la inclinación de la cabeza (entre 12° y 40°) y que los hombros " +
-                "se mantengan nivelados."
+                "se mantengan nivelados.",
+            zona = "Cabeza / cuello"
         ),
         Exercise(
             codigo = ELEVACION_BRAZOS,
@@ -43,7 +46,8 @@ object ExerciseCatalog {
                 "Baja despacio y repite."
             ),
             regla = "Se mide que ambas muñecas pasen la altura de los hombros y que los codos " +
-                "estén casi estirados (ángulo de 150° o más)."
+                "estén casi estirados (ángulo de 150° o más).",
+            zona = "Brazos / hombros"
         ),
         Exercise(
             codigo = FLEXION_LATERAL_TRONCO,
@@ -55,7 +59,8 @@ object ExerciseCatalog {
                 "Vuelve al centro y cambia de lado."
             ),
             regla = "Se mide la inclinación del tronco respecto a la vertical (entre 12° y 40°) " +
-                "y que la cadera permanezca nivelada."
+                "y que la cadera permanezca nivelada.",
+            zona = "Tronco"
         )
     )
 }

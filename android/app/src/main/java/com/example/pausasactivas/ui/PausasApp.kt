@@ -61,8 +61,11 @@ fun PausasApp(
             LaunchedEffect(Unit) { appViewModel.loadHistory() }
             HistoryScreen(
                 state = history,
+                userName = user?.nombre.orEmpty(),
                 onBack = { appViewModel.navigate(Screen.HOME) },
-                onRefresh = appViewModel::loadHistory
+                onRefresh = { appViewModel.loadHistory() },
+                onSilentRefresh = { appViewModel.loadHistory(silent = true) },
+                onExerciseFilterChange = appViewModel::setExerciseFilter
             )
         }
     }

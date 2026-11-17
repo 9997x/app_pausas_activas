@@ -31,9 +31,32 @@ exports.crearSesion = async (req, res) => {
 
 // @desc    2. Listar historial de sesiones de un usuario (HU-08/HU-09)
 // @route   GET /api/sesiones/usuario/:usuario_id
+//          Filtros opcionales (query):
+//            ?desde=<fecha ISO>&hasta=<fecha ISO>  → rango de fecha_registro (incluye ambos extremos)
+//            ?ejercicio=<codigo>                   → p. ej. CUELLO_LATERAL
 exports.obtenerSesionesPorUsuario = async (req, res) => {
   try {
-    const sesiones = await Sesion.find({ usuario_id: req.params.usuario_id }).sort({ fecha_registro: -1 });
+    const filtro = { usuario_id: req.params.usuario_id };
+    const { desde, hasta, ejercicio } = req.query;
+
+    if (desde || hasta) {
+      filtro.fecha_registro = {};
+      if (desde) {
+        const d = new Date(desde);
+        if (isNaN(d)) return res.status(400).json({ mensaje: 'El parámetro "desde" no es una fecha válida.' });
+        filtro.fecha_registro.$gte = d;
+      }
+      if (hasta) {
+        const h = new Date(hasta);
+        if (isNaN(h)) return res.status(400).json({ mensaje: 'El parámetro "hasta" no es una fecha válida.' });
+        filtro.fecha_registro.$lte = h;
+      }
+    }
+    if (ejercicio) {
+      filtro['ejercicio.codigo'] = String(ejercicio);
+    }
+
+    const sesiones = await Sesion.find(filtro).sort({ fecha_registro: -1 });
     res.status(200).json({ exito: true, total: sesiones.length, datos: sesiones });
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al consultar sesiones del usuario', error: error.message });

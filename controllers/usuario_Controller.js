@@ -75,3 +75,28 @@ exports.obtenerUsuarioPorId = async (req, res) => {
     });
   }
 };
+
+// @desc    3. Buscar un usuario por correo (acceso de demo para la app móvil y la web)
+// @route   GET /api/usuarios/buscar?correo=...
+exports.buscarUsuarioPorCorreo = async (req, res) => {
+  try {
+    const correo = String(req.query.correo || '').trim().toLowerCase();
+    if (!correo) {
+      return res.status(400).json({ mensaje: 'El parámetro "correo" es obligatorio.' });
+    }
+
+    const usuario = await Usuario.findOne({ correo });
+    if (!usuario) {
+      return res.status(404).json({
+        mensaje: 'No existe un usuario registrado con ese correo.'
+      });
+    }
+
+    res.status(200).json({ exito: true, datos: usuario });
+  } catch (error) {
+    res.status(500).json({
+      mensaje: 'Error al buscar el usuario',
+      error: error.message
+    });
+  }
+};
