@@ -29,3 +29,24 @@ API REST desarrollada en Node.js, Express y MongoDB Atlas para gestionar la tele
 2. Ejecutar `npm install`.
 3. Configurar el archivo `.env` basándose en `.env.example`.
 4. Iniciar el servidor con `node index.js`.
+
+## Nuevas funcionalidades
+
+| N.º | Historia de Usuario | Funcionalidad | Endpoint / Ubicación |
+| :--- | :--- | :--- | :--- |
+| 12 | Como usuario, quiero iniciar sesión con mi correo, para que la app sepa a qué usuario apuntar. | Buscar usuario por correo | `GET /api/usuarios/buscar?correo=...` |
+| 13 | Como usuario, quiero buscar mis sesiones por fecha o por ejercicio. | Filtros opcionales del historial | `GET /api/sesiones/usuario/:usuario_id?desde=&hasta=&ejercicio=` |
+| 14 | Como usuario, quiero ver, buscar y borrar mis pausas desde una página web. | App web en React | carpeta `web/` |
+| 15 | Como usuario móvil, quiero filtrar mi historial por ejercicio (cabeza, brazos, tronco). | Chips de filtro | `HistoryScreen.kt` |
+| 16 | Como usuario móvil, quiero ver un registro de actividad ("X realizó Y el día Z"). | Panel de logs abajo del historial | `HistoryScreen.kt` |
+
+### Sincronización web ↔ móvil
+La web y la app Android usan **la misma API y la misma base de datos MongoDB**, así que una pausa
+eliminada en la web desaparece del historial del móvil (y viceversa). Ambas pantallas de historial se
+refrescan solas cada 20 segundos, y también con el botón "Actualizar".
+
+### Ejecutar la web (React + Vite)
+1. Encender la API: `node index.js` (puerto 3000).
+2. `cd web && npm install`
+3. (Opcional) copiar `web/.env.example` a `web/.env` y cambiar `VITE_API_URL` si la API no está en `http://localhost:3000`.
+4. `npm run dev` y abrir `http://localhost:5173`.
