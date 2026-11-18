@@ -13,9 +13,12 @@ const sesionSchema = new mongoose.Schema({
     type: String, 
     required: [true, 'El ID del usuario es obligatorio'] 
   },
-  fecha_registro: { 
-    type: Date, 
-    default: Date.now 
+  fecha_registro: {
+    type: String,
+    default: () => new Date().toLocaleString('es-CO', {
+      timeZone: 'America/Bogota',
+      hour12: true 
+    })
   },
   ejercicio: {
     codigo: { type: String, required: true },
