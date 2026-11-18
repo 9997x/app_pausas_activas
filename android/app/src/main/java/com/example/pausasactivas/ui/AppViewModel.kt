@@ -24,8 +24,15 @@ data class AuthUiState(
 data class HistoryUiState(
     val loading: Boolean = false,
     val sessions: List<SessionDto> = emptyList(),
-    val error: String? = null
-)
+    val error: String? = null,
+    /** Código del ejercicio seleccionado en el filtro (null = todos). */
+    val exerciseFilter: String? = null
+) {
+    /** Sesiones visibles según el filtro por ejercicio. */
+    val filteredSessions: List<SessionDto>
+        get() = if (exerciseFilter == null) sessions
+        else sessions.filter { it.ejercicio?.codigo == exerciseFilter }
+}
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -83,21 +90,37 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _screen.value = Screen.LOGIN
     }
 
-    fun loadHistory() {
+    /**
+     * Carga el historial desde la API (la misma que usa la web, así que los cambios
+     * hechos allí —p. ej. una pausa eliminada— se ven al recargar).
+     * @param silent si es true no muestra el indicador de carga (refresco en segundo plano).
+     */
+    fun loadHistory(silent: Boolean = false) {
         val current = _user.value ?: return
-        _history.update { it.copy(loading = true, error = null) }
+        if (!silent) _history.update { it.copy(loading = true, error = null) }
         viewModelScope.launch {
             repository.getHistory(current.id).fold(
                 onSuccess = { sessions ->
-                    _history.value = HistoryUiState(sessions = sessions)
+                    _history.update { it.copy(loading = false, sessions = sessions, error = null) }
                 },
                 onFailure = { e ->
-                    _history.value = HistoryUiState(
-                        error = e.message ?: "No se pudo cargar el historial."
-                    )
+                    // En un refresco silencioso se conserva lo que ya se mostraba.
+                    if (!silent || _history.value.sessions.isEmpty()) {
+                        _history.update {
+                            it.copy(
+                                loading = false,
+                                error = e.message ?: "No se pudo cargar el historial."
+                            )
+                        }
+                    }
                 }
             )
         }
+    }
+
+    /** Filtra el historial por ejercicio (null = todos). */
+    fun setExerciseFilter(codigo: String?) {
+        _history.update { it.copy(exerciseFilter = codigo) }
     }
 
     // ------------------------------------------------------------------ Internos
